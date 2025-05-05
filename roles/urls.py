@@ -1,8 +1,8 @@
 from django.urls import path
-from .views import role_list
+from .views import RoleView
 
-app_name = 'roles'
+app_name = "roles"
 
 urlpatterns = [
-    path('/roles', role_list, name='role-list'),
+    path("roles", RoleView.as_view(), name="role-list-create"),
 ]

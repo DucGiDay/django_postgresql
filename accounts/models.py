@@ -3,8 +3,6 @@ from django.contrib.auth.hashers import make_password
 from roles.models import Role  # Import bảng Role để liên kết
 
 # Create your models here.
-
-
 class Account(models.Model):
     id = models.AutoField(primary_key=True)  # ID duy nhất
     created_at = models.DateTimeField(auto_now_add=True)  # Tự động thêm ngày tạo
@@ -15,7 +13,7 @@ class Account(models.Model):
     email = models.EmailField(null=True, blank=True)  # Email
     avatar_url = models.URLField(null=True, blank=True)  # URL ảnh đại diện
     roles = models.ManyToManyField(
-        Role, related_name="accounts", null=True, blank=True
+        Role, related_name="accounts", blank=True
     )  # Liên kết nhiều-nhiều với Role
 
     def save(self, *args, **kwargs):

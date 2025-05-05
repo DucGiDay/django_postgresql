@@ -1,0 +1,10 @@
+asgiref==3.8.1
+cffi==1.17.1
+cryptography==44.0.3
+Django==4.2.20
+djangorestframework==3.16.0
+psycopg2==2.9.10
+pycparser==2.22
+PyJWT==2.10.1
+sqlparse==0.5.3
+typing_extensions==4.13.2

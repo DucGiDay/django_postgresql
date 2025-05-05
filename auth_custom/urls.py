@@ -4,5 +4,5 @@ from .views import login
 app_name = 'auth_custom'
 
 urlpatterns = [
-    path('/login', login, name='login'),
+    path('login', login, name='login'),
 ]

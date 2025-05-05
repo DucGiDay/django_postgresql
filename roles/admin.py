@@ -7,5 +7,5 @@ from .models import Role
 
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'code', 'role_name')  # Hiển thị các trường trong admin
-    search_fields = ('code', 'role_name')  # Thêm chức năng tìm kiếm
+    list_display = ('id', 'code', 'roleName')  # Hiển thị các trường trong admin
+    search_fields = ('code', 'roleName')  # Thêm chức năng tìm kiếm

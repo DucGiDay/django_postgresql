@@ -4,7 +4,7 @@ from django.db import models
 
 class Role(models.Model):
     code = models.CharField(max_length=100)
-    role_name = models.CharField(max_length=200)
+    roleName = models.CharField(max_length=200, db_column='role_name')
 
     def __str__(self):
         return self.code

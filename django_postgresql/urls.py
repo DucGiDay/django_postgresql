@@ -19,7 +19,7 @@ from django.urls import path, include  # Thêm include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api', include('roles.urls')),  # Thêm dòng này để include URLs từ ứng dụng roles
-    path('api', include('accounts.urls')),  
-    path('api/auth', include('auth_custom.urls')),  
+    path('api/', include('roles.urls')),  # Thêm dòng này để include URLs từ ứng dụng roles
+    path('api/', include('accounts.urls')),  
+    path('auth/', include('auth_custom.urls')),  
 ]

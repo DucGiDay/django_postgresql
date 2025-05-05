@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+
+    # feature app
     "roles",
     "accounts",
     "products",
@@ -53,6 +55,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "auth_custom.middleware.TokenMiddleware",
 ]
 
 ROOT_URLCONF = "django_postgresql.urls"
@@ -131,3 +134,7 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# ENV
+SECRET_KEY = os.environ.get("SECRET_KEY", "default_secret_key")
