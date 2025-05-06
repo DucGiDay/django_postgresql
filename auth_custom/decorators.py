@@ -12,7 +12,7 @@ def check_role(required_roles):
     def decorator(view_func):
         def wrapped_view(request, *args, **kwargs):
             auth_header = request.headers.get("Authorization")
-            if not auth_header or not auth_header.startswith("Token "):
+            if not auth_header or not auth_header.startswith("Bearer "):
                 return JsonResponse(
                     {"error": "Authentication credentials were not provided."},
                     status=401,

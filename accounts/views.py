@@ -4,17 +4,30 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from math import ceil
 from django.utils.decorators import method_decorator
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from roles.models import Role
 from .models import Account
 from .serializers import AccountSerializer
 from auth_custom.decorators import check_role
+from .swagger_schemas import (
+    PAGE_PARAMETER,
+    LIMIT_PARAMETER,
+    KEYWORD_PARAMETER,
+    ASSIGN_ROLE_BODY,
+)
 
 class AccountView(APIView):
     """
     API để xử lý danh sách tài khoản (GET) và tạo tài khoản mới (POST).
     """
 
+    @swagger_auto_schema(
+        operation_description="Lấy danh sách các tài khoản",
+        manual_parameters=[PAGE_PARAMETER, LIMIT_PARAMETER, KEYWORD_PARAMETER],
+        # responses={200: "Danh sách tài khoản trả về thành công"},
+    )
     def get(self, request):
         page = request.query_params.get("page", 1)
         limit = request.query_params.get("limit", 10)
@@ -51,6 +64,10 @@ class AccountView(APIView):
             status=status.HTTP_200_OK,
         )
 
+    @swagger_auto_schema(
+        operation_description="Tạo tài khoản mới",
+        request_body=AccountSerializer,
+    )
     def post(self, request):
         serializer = AccountSerializer(data=request.data)
         if serializer.is_valid():
@@ -100,6 +117,10 @@ class AssignRoleView(APIView):
     API để gắn role cho người dùng.
     """
 
+    @swagger_auto_schema(
+        operation_description="Tạo tài khoản mới",
+        request_body=ASSIGN_ROLE_BODY,
+    )
     def put(self, request, pk):
         # Lấy người dùng dựa trên pk
         account = get_object_or_404(Account, pk=pk)

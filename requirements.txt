@@ -8,3 +8,4 @@ pycparser==2.22
 PyJWT==2.10.1
 sqlparse==0.5.3
 typing_extensions==4.13.2
+drf-yasg>=1.21.7,<2.0.0;

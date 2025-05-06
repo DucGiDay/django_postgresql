@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from drf_yasg.utils import swagger_auto_schema
 
 from .models import Role
 from .serializers.roles_serializers import RoleSerializer
@@ -16,6 +17,11 @@ class RoleView(APIView):
         serializer = RoleSerializer(roles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        operation_description="Tạo role mới",
+        request_body=RoleSerializer,
+        responses={201: RoleSerializer, 400: "Dữ liệu không hợp lệ"},
+    )
     def post(self, request):
         serializer = RoleSerializer(data=request.data)
         if serializer.is_valid():

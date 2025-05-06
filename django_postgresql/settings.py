@@ -39,12 +39,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "drf_yasg",
 
     # feature app
     "roles",
     "accounts",
     "products",
-    "auth_custom"
+    "auth_custom",
 ]
 
 MIDDLEWARE = [
@@ -138,3 +139,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # ENV
 SECRET_KEY = os.environ.get("SECRET_KEY", "default_secret_key")
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'JWT Authorization header using the Bearer scheme. Example: "Bearer {token}"',
+        }
+    },
+    'USE_SESSION_AUTH': False,  # tắt auth mặc định của Django session
+}

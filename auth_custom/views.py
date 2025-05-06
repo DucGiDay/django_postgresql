@@ -5,15 +5,35 @@ from django.contrib.auth.hashers import check_password
 from datetime import timedelta
 from django.utils.timezone import now
 import jwt
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from accounts.models import Account
 from accounts.serializers import AccountSerializer
 from auth_custom.models import RefreshToken
 from django.conf import settings
 
-ACCESS_TOKEN_LIFETIME = timedelta(minutes=15)  # Thời gian sống của access token
+# ACCESS_TOKEN_LIFETIME = timedelta(minutes=15)  # Thời gian sống của access token
+ACCESS_TOKEN_LIFETIME = timedelta(days=1)  # Thời gian sống của access token
 REFRESH_TOKEN_LIFETIME = timedelta(days=30)  # Thời gian sống của refresh token
 
+@swagger_auto_schema(
+    method="post",
+    operation_description="Đăng nhập",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            "username": openapi.Schema(
+                type=openapi.TYPE_STRING, description="Tên đăng nhập"
+            ),
+            "password": openapi.Schema(
+                type=openapi.TYPE_STRING, description="Mật khẩu"
+            ),
+        },
+        required=["username", "password"],
+    ),
+    # responses={200: openapi.Response(description='Đăng nhập thành công')}
+)
 @api_view(["POST"])
 def login(request):
     username = request.data.get("username")
