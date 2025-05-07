@@ -6,10 +6,13 @@ from math import ceil
 from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework.parsers import MultiPartParser, FormParser
 
+from django_postgresql.common.helpers import str_to_bool
+from django_postgresql.services.supabase_storage_service import SupabaseStorageService
 from roles.models import Role
 from .models import Account
-from .serializers import AccountSerializer
+from .serializers import AccountSerializer, UpdateAccountSerializer
 from auth_custom.decorators import check_role
 from .swagger_schemas import (
     PAGE_PARAMETER,
@@ -17,6 +20,7 @@ from .swagger_schemas import (
     KEYWORD_PARAMETER,
     ASSIGN_ROLE_BODY,
 )
+
 
 class AccountView(APIView):
     """
@@ -81,22 +85,56 @@ class AccountDetailView(APIView):
     API để xử lý chi tiết, cập nhật và xóa tài khoản.
     """
 
+    parser_classes = [MultiPartParser, FormParser]
+
     def get(self, request, pk):
         account = get_object_or_404(Account, pk=pk)
-        serializer = AccountSerializer(account)
+        serializer = AccountSerializer(
+            account,
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, pk):
+        try:
+            account = get_object_or_404(Account, pk=pk)
+            serializer = UpdateAccountSerializer(
+                account, data=request.data, partial=True
+            )
+
+            avatar = request.FILES.get("avatar_file")
+            is_delete_ava = str_to_bool(request.data.get("is_delete_ava", False))
+            if serializer.is_valid():
+                supabase_service = SupabaseStorageService()
+                if account.avatar and (avatar or is_delete_ava):
+                    path = [account.avatar.get("path")]
+                    supabase_service.delete_file(bucket="img-bucket", path=path)
+                    serializer.validated_data["avatar"] = {}
+                if avatar:
+                    # Đẩy ảnh lên supabase, gán url và path vào avatar
+                    avatar_response = supabase_service.upload_file(
+                        bucket="img-bucket", file_name=avatar.name, file=avatar
+                    )
+
+                    serializer.validated_data["avatar"] = avatar_response
+
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Account.DoesNotExist:
+            return Response(
+                {"error": "Account not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"An unexpected error occurred: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     def put(self, request, pk):
         account = get_object_or_404(Account, pk=pk)
         serializer = AccountSerializer(account, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def patch(self, request, pk):
-        account = get_object_or_404(Account, pk=pk)
-        serializer = AccountSerializer(account, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

@@ -15,3 +15,9 @@ class AccountSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "password": {"write_only": True}  # Không trả về mật khẩu trong response
         }
+
+
+class UpdateAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = fields = ["username", "full_name", "email", "avatar"]

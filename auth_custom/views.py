@@ -12,6 +12,7 @@ from accounts.models import Account
 from accounts.serializers import AccountSerializer
 from auth_custom.models import RefreshToken
 from django.conf import settings
+from django_postgresql.services.supabase_storage_service import SupabaseStorageService
 
 # ACCESS_TOKEN_LIFETIME = timedelta(minutes=15)  # Thời gian sống của access token
 ACCESS_TOKEN_LIFETIME = timedelta(days=1)  # Thời gian sống của access token
@@ -95,4 +96,21 @@ def login(request):
                 {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
             )
     except Account.DoesNotExist:
-        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        supabase_service = SupabaseStorageService()
+        # url = supabase_service.list_all_files("img-bucket")
+        # return Response(
+        #     {
+        #         "message": "Login successful",
+        #         "data": url,
+        #     },
+        #     status=status.HTTP_200_OK,
+        # )
+        url = supabase_service.get_public_url("img-bucket", 'c89670c7-4a7b-4269-8b81-33517303b92b_screenshot.png')
+        return Response(
+            {
+                "message": "Login successful",
+                "data": url,
+            },
+            status=status.HTTP_200_OK,
+        )
+        # return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)

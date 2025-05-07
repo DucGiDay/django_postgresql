@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password
-from roles.models import Role  # Import bảng Role để liên kết
+from roles.models import Role 
 
 # Create your models here.
 class Account(models.Model):
@@ -11,14 +11,14 @@ class Account(models.Model):
     password = models.CharField(max_length=128)  # Mật khẩu đã hash
     full_name = models.CharField(max_length=255, null=True, blank=True)  # Tên đầy đủ
     email = models.EmailField(null=True, blank=True)  # Email
-    avatar_url = models.URLField(null=True, blank=True)  # URL ảnh đại diện
+    avatar = models.JSONField(default=dict, blank=True, null=True) 
     roles = models.ManyToManyField(
         Role, related_name="accounts", blank=True
     )  # Liên kết nhiều-nhiều với Role
 
     def save(self, *args, **kwargs):
         # Hash mật khẩu trước khi lưu
-        if not self.pk or "password" in self.get_dirty_fields():
+        if not self.pk or "password":
             self.password = make_password(self.password)
         super().save(*args, **kwargs)
 
