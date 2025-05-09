@@ -9,7 +9,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from accounts.models import Account
-from accounts.serializers import AccountSerializer
+from accounts.serializers import AccountSerializer, RegisterSerializer
 from auth_custom.models import RefreshToken
 from django.conf import settings
 from django_postgresql.services.supabase_storage_service import SupabaseStorageService
@@ -17,6 +17,7 @@ from django_postgresql.services.supabase_storage_service import SupabaseStorageS
 # ACCESS_TOKEN_LIFETIME = timedelta(minutes=15)  # Thời gian sống của access token
 ACCESS_TOKEN_LIFETIME = timedelta(days=1)  # Thời gian sống của access token
 REFRESH_TOKEN_LIFETIME = timedelta(days=30)  # Thời gian sống của refresh token
+
 
 @swagger_auto_schema(
     method="post",
@@ -105,12 +106,65 @@ def login(request):
         #     },
         #     status=status.HTTP_200_OK,
         # )
-        url = supabase_service.get_public_url("img-bucket", 'c89670c7-4a7b-4269-8b81-33517303b92b_screenshot.png')
+        # url = supabase_service.get_public_url("img-bucket", 'c89670c7-4a7b-4269-8b81-33517303b92b_screenshot.png')
+        # return Response(
+        #     {
+        #         "message": "Login successful",
+        #         "data": url,
+        #     },
+        #     status=status.HTTP_200_OK,
+        # )
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+@swagger_auto_schema(
+    method="post",
+    operation_description="Đăng ký",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            "username": openapi.Schema(
+                type=openapi.TYPE_STRING, description="Tên đăng nhập"
+            ),
+            "password": openapi.Schema(
+                type=openapi.TYPE_STRING, description="Mật khẩu"
+            ),
+            "full_name": openapi.Schema(
+                type=openapi.TYPE_STRING, description="Họ và tên"
+            ),
+            "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email"),
+            "roles": openapi.Schema(
+                type=openapi.TYPE_ARRAY,
+                items=openapi.Items(type=openapi.TYPE_STRING),
+                description="Roles",
+            ),
+        },
+        required=["username", "password"],
+    ),
+    # responses={200: openapi.Response(description='Đăng nhập thành công')}
+)
+@api_view(["POST"])
+def register(request):
+    username = request.data.get("username")
+    password = request.data.get("password")
+
+    if not username or not password:
         return Response(
-            {
-                "message": "Login successful",
-                "data": url,
-            },
-            status=status.HTTP_200_OK,
+            {"error": "Username and password are required."},
+            status=status.HTTP_400_BAD_REQUEST,
         )
-        # return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        if Account.objects.filter(username=username).exists():
+            return Response(
+                {"error": "User with this username already exists."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Account.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)

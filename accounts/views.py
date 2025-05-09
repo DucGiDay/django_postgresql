@@ -21,7 +21,6 @@ from .swagger_schemas import (
     ASSIGN_ROLE_BODY,
 )
 
-
 class AccountView(APIView):
     """
     API để xử lý danh sách tài khoản (GET) và tạo tài khoản mới (POST).
@@ -185,4 +184,11 @@ class AssignRoleView(APIView):
 
         # Serialize và trả về thông tin người dùng
         serializer = AccountSerializer(account)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({
+            "id": account.id,
+            "username": account.username,
+            "full_name": account.full_name,
+            "roles": serializer.data.get("roles"),
+            "created_at": account.created_at,
+            "updated_at": account.updated_at,
+        }, status=status.HTTP_200_OK)
